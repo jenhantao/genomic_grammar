@@ -37,6 +37,26 @@ def get_additiveAttention_model(total_seq_length,
     attention_dim=10,
     attention_hops=1,
     dropout_rate=0.1):
+
+    # set model training settings
+    if mode == 'classification':
+        mode_activation = 'sigmoid'
+        mode_loss = keras.losses.categorical_crossentropy
+        mode_metrics = ['categorical_accuracy']
+        mode_optimizer = keras.optimizers.Adam()
+
+    elif mode == 'signal_regression':
+        mode_activation = 'relu'
+        mode_loss = keras.losses.mean_squared_logarithmic_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+
+    elif mode == 'fold_regression':
+        mode_activation = 'linear'
+        mode_loss = keras.losses.mean_absolute_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+    
     input_fwd = Input(shape=(total_seq_length,4), name='input_fwd')
 
     ### find motifs ###
@@ -79,31 +99,11 @@ def get_additiveAttention_model(total_seq_length,
     
     # make prediction
     flattened = Flatten(name='flatten')(attended_states)
-
-    # set model training settings
-    if mode == 'classification':
-        mode_activation = 'sigmoid'
-        mode_loss = keras.losses.categorical_crossentropy
-        mode_metrics = ['categorical_accuracy']
-        mode_optimizer = keras.optimizers.Adam()
-
-    elif mode == 'signal_regression':
-        mode_activation = 'relu'
-        mode_loss = keras.losses.mean_squared_logarithmic_error
-        mode_metrics = [pearson_correlation]
-        mode_optimizer = keras.optimizers.RMSprop()
-
-    elif mode == 'fold_regression':
-        mode_activation = 'linear'
-        mode_loss = keras.losses.mean_absolute_error
-        mode_metrics = [pearson_correlation]
-        mode_optimizer = keras.optimizers.RMSprop()
-    
     predictions = Dense(num_classes,
                         name='predictions',
                         activation = mode_activation
                        )(flattened)
-    
+
     # define and compile model
     model = Model(inputs=[input_fwd], outputs=predictions)
 
@@ -171,14 +171,34 @@ class Projection(Layer):
         return output
 
 def get_dotProductAttention_regression_model(total_seq_length,
+    mode,
     num_classes = 1,
     num_motifs=150, 
     motif_size=10,
     adjacent_bp_pool_size=10,
     num_dense_neurons=50,
     dropout_rate=0.75):
+    
+    # set model training settings
+    if mode == 'classification':
+        mode_activation = 'sigmoid'
+        mode_loss = keras.losses.categorical_crossentropy
+        mode_metrics = ['categorical_accuracy']
+        mode_optimizer = keras.optimizers.Adam()
+
+    elif mode == 'signal_regression':
+        mode_activation = 'relu'
+        mode_loss = keras.losses.mean_squared_logarithmic_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+
+    elif mode == 'fold_regression':
+        mode_activation = 'linear'
+        mode_loss = keras.losses.mean_absolute_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+    
     input_fwd = Input(shape=(total_seq_length,4), name='input_fwd')
-    input_rev = Input(shape=(total_seq_length,4), name='input_rev')
 
     ### find motifs ###
     convolution_layer = Conv1D(filters=num_motifs, 
@@ -237,22 +257,19 @@ def get_dotProductAttention_regression_model(total_seq_length,
     
     # make prediction
     flattened = Flatten(name='flatten')(attended_states)#(drop_out)
-    
     predictions = Dense(num_classes,
                         name='predictions',
-                        activation = 'linear', 
+                        activation = mode_activation, 
                        )(flattened)
-    
+
     # define and compile model
-    model = Model(inputs=[input_fwd, input_rev], outputs=predictions)
+    model = Model(inputs=[input_fwd], outputs=predictions)
 
-    model.compile(
-        loss=keras.losses.mean_squared_error,
-        optimizer = keras.optimizers.RMSprop(),
-        metrics = [pearson_correlation])
-
-
+    model.compile(loss=mode_loss
+                  optimizer=mode_optimizer
+                  metrics=mode_metrics)
     return model
+    
 
 def get_convolution_regression_model(
     total_seq_length=200,
@@ -263,6 +280,28 @@ def get_convolution_regression_model(
     num_dense_neurons = 50, 
     dropout_rate = 0.75
     ):
+    
+    # set model training settings
+    if mode == 'classification':
+        mode_activation = 'sigmoid'
+        mode_loss = keras.losses.categorical_crossentropy
+        mode_metrics = ['categorical_accuracy']
+        mode_optimizer = keras.optimizers.Adam()
+
+    elif mode == 'signal_regression':
+        mode_activation = 'relu'
+        mode_loss = keras.losses.mean_squared_logarithmic_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+
+    elif mode == 'fold_regression':
+        mode_activation = 'linear'
+        mode_loss = keras.losses.mean_absolute_error
+        mode_metrics = [pearson_correlation]
+        mode_optimizer = keras.optimizers.RMSprop()
+    else:
+        return None
+
     input_fwd = Input(shape=(total_seq_length,4), name='input_fwd')
     input_rev = Input(shape=(total_seq_length,4), name='input_rev')
 
@@ -303,14 +342,13 @@ def get_convolution_regression_model(
     # make prediction
     flattened = Flatten()(drop_out)
     predictions = Dense(num_classes,
-                        activation = 'linear', 
+                        activation = mode_activation, 
                        )(flattened)
     
     # define and compile model
-    convolution_model = Model(inputs=[input_fwd, input_rev], outputs=predictions)
-    convolution_model.compile(
-        loss = keras.losses.mean_squared_error,
-#         loss=keras.losses.mean_squared_logarithmic_error,
-        optimizer = keras.optimizers.RMSprop(),
-        metrics = [pearson_correlation])
-    return convolution_model
+    model = Model(inputs=[input_fwd, input_rev], outputs=predictions)
+
+    model.compile(loss=mode_loss
+                  optimizer=mode_optimizer
+                  metrics=mode_metrics)
+    return model
