@@ -107,8 +107,8 @@ def get_additiveAttention_model(total_seq_length,
     # define and compile model
     model = Model(inputs=[input_fwd], outputs=predictions)
 
-    model.compile(loss=mode_loss
-                  optimizer=mode_optimizer
+    model.compile(loss=mode_loss,
+                  optimizer=mode_optimizer,
                   metrics=mode_metrics)
     return model
 
@@ -265,8 +265,8 @@ def get_dotProductAttention_regression_model(total_seq_length,
     # define and compile model
     model = Model(inputs=[input_fwd], outputs=predictions)
 
-    model.compile(loss=mode_loss
-                  optimizer=mode_optimizer
+    model.compile(loss=mode_loss,
+                  optimizer=mode_optimizer,
                   metrics=mode_metrics)
     return model
     
@@ -348,7 +348,7 @@ def get_convolution_regression_model(
     # define and compile model
     model = Model(inputs=[input_fwd, input_rev], outputs=predictions)
 
-    model.compile(loss=mode_loss
-                  optimizer=mode_optimizer
+    model.compile(loss=mode_loss,
+                  optimizer=mode_optimizer,
                   metrics=mode_metrics)
     return model
