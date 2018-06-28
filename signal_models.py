@@ -271,8 +271,9 @@ def get_dotProductAttention_model(total_seq_length,
     return model
     
 
-def get_convolution_regression_model(
-    total_seq_length=200,
+def get_convolution_model(
+    total_seq_length,
+    mode,
     num_classes = 1,
     num_motifs = 150,
     motif_size = 10,
