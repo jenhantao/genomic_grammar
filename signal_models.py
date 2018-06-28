@@ -170,7 +170,7 @@ class Projection(Layer):
         
         return output
 
-def get_dotProductAttention_regression_model(total_seq_length,
+def get_dotProductAttention_model(total_seq_length,
     mode,
     num_classes = 1,
     num_motifs=150, 
@@ -273,7 +273,6 @@ def get_dotProductAttention_regression_model(total_seq_length,
 
 def get_convolution_regression_model(
     total_seq_length=200,
-    seq_size = 150,
     num_classes = 1,
     num_motifs = 150,
     motif_size = 10,
@@ -316,17 +315,11 @@ def get_convolution_regression_model(
     forward_motif_scores = convolution_layer(input_fwd)
     reverse_motif_scores = convolution_layer(input_rev)
 
-    # crop motif scores to avoid parts of sequence where motif score is computed in only one direction
-    to_crop = int((total_seq_length - seq_size)/2)
-    crop_layer = Cropping1D(cropping=(to_crop, to_crop), 
-        name='crop_layer')
-    cropped_fwd_scores = crop_layer(forward_motif_scores)
-    cropped_rev_scores = crop_layer(reverse_motif_scores)
 
     # calculate max scores for each orientation
-    seq_pool_layer = MaxPool1D(pool_size=seq_size)
-    max_fwd_scores = seq_pool_layer(cropped_fwd_scores)
-    max_rev_scores = seq_pool_layer(cropped_rev_scores)
+    seq_pool_layer = MaxPool1D(pool_size=total_seq_length)
+    max_fwd_scores = seq_pool_layer(forward_motif_scores)
+    max_rev_scores = seq_pool_layer(reverse_motif_scores)
 
     # calculate max score for strand
     orientation_max_layer = Maximum()
