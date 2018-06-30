@@ -143,13 +143,13 @@ class Projection(Layer):
                  **kwargs):
         if 'input_shape' not in kwargs and 'input_dim' in kwargs:
             kwargs['input_shape'] = (kwargs.pop('input_dim'),)
-        super(Projection, self).__init__(**kwargs)
         self.units = units
         self.activation = activations.tanh
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.kernel_constraint = constraints.get(kernel_constraint)
         self.input_spec = InputSpec(min_ndim=2)
         self.supports_masking = True
+        super(Projection, self).__init__(**kwargs)
 
     def build(self, input_shape):
         assert len(input_shape) >= 2
@@ -161,12 +161,23 @@ class Projection(Layer):
                                       constraint=self.kernel_constraint)
 
         self.input_spec = InputSpec(min_ndim=2, axes={-1: input_dim})
-        self.built = True
+        super(Projection, self).build(input_shape)
 
     def call(self, inputs):
         output = element_multiply(inputs, self.kernel)
         output = self.activation(output)
         return output
+
+    def get_config(self):
+        config = {
+            'units': self.units,
+            'kernel_initializer': initializers.serialize(self.kernel_initializer),
+        }
+        return config
+
+    def compute_output_shape(self, input_shape):
+        output_shape = (self.units, input_shape[1])
+        return output_shape
 
 def get_dotProductAttention_model(total_seq_length,
     mode,
