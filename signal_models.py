@@ -163,11 +163,9 @@ class Projection(Layer):
         self.input_spec = InputSpec(min_ndim=2, axes={-1: input_dim})
         self.built = True
 
-    
     def call(self, inputs):
         output = element_multiply(inputs, self.kernel)
         output = self.activation(output)
-        
         return output
 
 def get_dotProductAttention_model(total_seq_length,
