@@ -260,8 +260,13 @@ def get_dotProductAttention_model(total_seq_length,
     weighted_values = value_transformer(pooled_scores)
     
     ### attend to hidden states ###
-    attending_layer = Dot(axes=(1,1),
+    print('attention_dropout_layer_out', attention_dropout_layer_out.shape)
+    print('weighted_values', weighted_values.shape)
+    ax1 = 2
+    ax2 = 1
+    attending_layer = Dot(axes=(ax1,ax2),
         name='attending_layer')
+    print('attending axes', ax1,ax2)
     attended_states = attending_layer([attention_dropout_layer_out, weighted_values])
     
     # make prediction
