@@ -97,12 +97,12 @@ def get_additiveAttention_model(total_seq_length,
 
     attended_states = attending_layer([attention_dropout_layer_out, forward_motif_scores])
 
-    dense_layer = TimeDistributed(Dense(units=1, activation = 'linear'),
-                                  name='dense_layer')
-    dense_out = dense_layer(attended_states)
+#    dense_layer = TimeDistributed(Dense(units=1, activation = 'linear'),
+#                                  name='dense_layer')
+#    dense_out = dense_layer(attended_states)
     
     # make prediction
-    flattened = Flatten(name='flatten')(dense_out)
+    flattened = Flatten(name='flatten')(attended_states)
     predictions = Dense(num_classes,
                         name='predictions',
                         activation = mode_activation
@@ -273,7 +273,7 @@ def get_dotProductAttention_model(total_seq_length,
     ax2 = 1
     attending_layer = Dot(axes=(ax1,ax2),
         name='attending_layer')
-    print('attending axes', ax1,ax2, 'linear')
+    #print('attending axes', ax1,ax2, 'linear')
     attended_states = attending_layer([attention_dropout_layer_out, weighted_values])
 
     # make prediction
