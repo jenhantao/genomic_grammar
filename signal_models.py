@@ -244,13 +244,14 @@ def get_dotProductAttention_model(total_seq_length,
     dot_product = Dot(axes=(2,2),name='dot_product')
     attention_weights = dot_product([weighted_queries, weighted_keys])
 
-     scaling_layer = Lambda(lambda x: x/(int(num_motifs*2)**-2),
-         name='scaling_layer')
-     scaled_attention_weights = scaling_layer(attention_weights)
+    #scaling_layer = Lambda(lambda x: x/(int(num_motifs*2)**-2),
+    #    name='scaling_layer')
+    #scaled_attention_weights = scaling_layer(attention_weights)
 
     ### apply softmax ###
     softmax_layer = Softmax(axis=1, name='attention_softmax_layer')
-    attention_softmax_layer_out = softmax_layer(scaled_attention_weights)
+    attention_softmax_layer_out = softmax_layer(attention_weights)
+    #attention_softmax_layer_out = softmax_layer(scaled_attention_weights)
     
     attention_dropout_layer = Dropout(dropout_rate, name='attention_dropout')
     attention_dropout_layer_out = attention_dropout_layer(attention_softmax_layer_out)
