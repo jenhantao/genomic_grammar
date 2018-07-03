@@ -244,9 +244,13 @@ def get_dotProductAttention_model(total_seq_length,
     dot_product = Dot(axes=(2,2),name='dot_product')
     attention_weights = dot_product([weighted_queries, weighted_keys])
 
+     scaling_layer = Lambda(lambda x: x/(int(num_motifs*2)**-2),
+         name='scaling_layer')
+     scaled_attention_weights = scaling_layer(attention_weights)
+
     ### apply softmax ###
     softmax_layer = Softmax(axis=1, name='attention_softmax_layer')
-    attention_softmax_layer_out = softmax_layer(attention_weights)
+    attention_softmax_layer_out = softmax_layer(scaled_attention_weights)
     
     attention_dropout_layer = Dropout(dropout_rate, name='attention_dropout')
     attention_dropout_layer_out = attention_dropout_layer(attention_softmax_layer_out)
@@ -260,17 +264,20 @@ def get_dotProductAttention_model(total_seq_length,
     weighted_values = value_transformer(pooled_scores)
     
     ### attend to hidden states ###
-    print('attention_dropout_layer_out', attention_dropout_layer_out.shape)
-    print('weighted_values', weighted_values.shape)
-    ax1 = 2
+    ax1 = 1
     ax2 = 1
     attending_layer = Dot(axes=(ax1,ax2),
         name='attending_layer')
-    print('attending axes', ax1,ax2)
+    print('attending axes', ax1,ax2, 'tanh')
     attended_states = attending_layer([attention_dropout_layer_out, weighted_values])
-    
+
     # make prediction
-    flattened = Flatten(name='flatten')(attended_states)#(drop_out)
+    dense_layer = TimeDistributed(Dense(units=1, activation = 'tanh'),
+                                  name='dense_layer')
+    dense_out = dense_layer(attended_states)
+
+    flattened = Flatten(name='flatten')(dense_out)#(drop_out)
+
     predictions = Dense(num_classes,
                         name='predictions',
                         activation = mode_activation, 
