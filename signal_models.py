@@ -189,7 +189,7 @@ def get_dotProductAttention_model(total_seq_length,
     num_motifs=150, 
     motif_size=10,
     adjacent_bp_pool_size=10,
-    num_dense_neurons=50,
+    num_dense_neurons=10,
     dropout_rate=0.75):
     
     # set model training settings
@@ -277,8 +277,11 @@ def get_dotProductAttention_model(total_seq_length,
     attended_states = attending_layer([attention_dropout_layer_out, weighted_values])
 
     # make prediction
-    dense_layer = TimeDistributed(Dense(units=1, activation = 'linear'),
-                                  name='dense_layer')
+    dense_layer = TimeDistributed(
+        Dense(
+        units=num_dense_neurons, 
+        activation = 'tanh'),
+        name='dense_layer')
     dense_out = dense_layer(attended_states)
 
     flattened = Flatten(name='flatten')(dense_out)#(drop_out)
