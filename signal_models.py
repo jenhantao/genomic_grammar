@@ -148,7 +148,7 @@ class Projection(Layer):
         if 'input_shape' not in kwargs and 'input_dim' in kwargs:
             kwargs['input_shape'] = (kwargs.pop('input_dim'),)
         self.units = units
-        self.activation = activations.tanh
+        self.activation = activations.linear
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.kernel_constraint = constraints.get(kernel_constraint)
         self.input_spec = InputSpec(min_ndim=2)
