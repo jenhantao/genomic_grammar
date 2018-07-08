@@ -309,6 +309,10 @@ def get_convolution_model(
     num_dense_neurons = 50, 
     dropout_rate = 0.75
     ):
+    '''
+    Implementation of DeepBind model adapted to also do regression
+    in addition to classification of regulatory sequences (enhancers)
+    '''
     
     # set model training settings
     if mode == 'classification':
