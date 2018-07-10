@@ -65,7 +65,8 @@ def get_additiveAttention_model(total_seq_length,
         activation='relu',
         input_shape=(total_seq_length,4),
         name='convolution_layer',
-        padding = 'same'
+        padding = 'same',
+        use_bias = False
         )
     forward_motif_scores = convolution_layer(input_fwd)
     ### attention tanh layer ###
@@ -219,7 +220,8 @@ def get_dotProductAttention_model(total_seq_length,
         activation='relu',
         input_shape=(total_seq_length,4),
         name='convolution_layer',
-        padding = 'same'
+        padding = 'same',
+        use_bias=False,
         )
     forward_motif_scores = convolution_layer(input_fwd)
     ### crop motif scores to avoid parts of sequence where motif score is computed in only one direction ###
@@ -344,7 +346,8 @@ def get_convolution_model(
         activation='relu',
         input_shape=(total_seq_length,4),
         name='convolution_layer',
-        padding = 'same'
+        padding = 'same',
+        use_bias = False,
         )
     forward_motif_scores = convolution_layer(input_fwd)
     reverse_motif_scores = convolution_layer(input_rev)
